@@ -1,6 +1,5 @@
 import mongoose, { Schema, model, models } from "mongoose";
 import bcrypt from "bcryptjs";
-import next from "next";
 
 export interface IUser {
     email: string;
@@ -17,11 +16,11 @@ const userSchema = new Schema<IUser>({
 { timestamps: true}
 );
 
-userSchema.pre("save", async function () {
+userSchema.pre("save", async function (next) {
     if (this.isModified("password")) {
         this.password = await bcrypt.hash(this.password, 10);
     }
-     // Removed unnecessary next() call
+     next()
 })
 
 const User = models?.User || model<IUser>("User", userSchema)

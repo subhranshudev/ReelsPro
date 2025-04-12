@@ -34,6 +34,30 @@ export default withAuth(
 );
 
 export const config = {
-    matcher: ["/((?!_next_static|_next/image|favicon.ico|public/).*)"], // Here neagtive lookahead matcher is used, means the middleware will apply 
-                                                                        // to all routes except the routes mentioned here
+  matcher: ["/((?!_next_static|_next/image|favicon.ico|public/).*)"], // Here neagtive lookahead matcher is used, means the middleware will apply
+                                                                      // to all routes except the routes mentioned here
 };
+
+
+
+
+// How withAuth Actually Works (Important Flow)
+// When you use withAuth, it does two things:
+// 1. Calls your authorized callback first to check if the request should proceed.
+// 2. If authorized returns:
+// true → it runs your middleware function (if provided)
+// false → it blocks the request immediately (without running your middleware function) and redirects (or returns 401)
+
+//  handled public routes first
+//  Then, with "return !!token;" at the end, easily protected everything else by default
+
+// withAuth with token --> 
+// It decodes the token
+// It validates its signature and expiry
+// If valid → it makes the token available to you via token in authorized callback. (validation occurs internally)
+// If invalid (expired, malformed, wrong secret) → token will be null
+
+// withAuth reads, decodes, and validates the token for you internally.
+// You only need to check if token exists in your authorized callback to control access.
+
+// withAuth doesn’t check custom properties inside the token (like token.role), you’d have to do that yourself if needed.
