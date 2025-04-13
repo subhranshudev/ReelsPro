@@ -37,15 +37,16 @@ export async function POST(request: NextRequest) {
     if (
       !body.title ||
       !body.description ||
-      !body.videoUrl ||
-      !body.thumbnailUrl
+      !body.videoUrl 
+      // !body.thumbnailUrl
     ) {
       return NextResponse.json(
         { error: "Missing required fields" },
         { status: 400 }
       );
     }
-
+    console.log("body: ", body);
+    
     const videoData = {
       ...body,
       controls: body.controls ?? true,
