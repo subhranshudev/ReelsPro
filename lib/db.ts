@@ -5,7 +5,7 @@ const MONGODB_URI = process.env.MONGODB_URI!;
 if (!MONGODB_URI) {
   throw new Error("Please define mongodb uri in env file");
 }
-console.log("GLOBAL: ", global);
+//console.log("GLOBAL: ", global);
 
 let cached = global.mongoose;
 

@@ -14,6 +14,9 @@ export const authOptions: NextAuthOptions = {
       },
 
       async authorize(credentials) {
+        console.log("email: ", credentials?.email);
+        console.log("password: ", credentials?.password);
+        
         if (!credentials?.email || !credentials.password) {
           throw new Error("Missing email or password");
         }
@@ -33,6 +36,9 @@ export const authOptions: NextAuthOptions = {
           if (!isValid) {
             throw new Error("Invalid password");
           }
+
+          console.log("USER: ", user);
+          
 
           return {
             //It will be stored in session

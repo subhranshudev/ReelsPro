@@ -13,7 +13,8 @@ export async function GET() {
     if (!videos || videos.length === 0) {
       return NextResponse.json([], { status: 200 });
     }
-
+    console.log("VIDEOS: ", videos);
+    
     return NextResponse.json(videos);
   } catch (error) {
     return NextResponse.json(
@@ -40,7 +41,7 @@ export async function POST(request: NextRequest) {
       !body.thumbnailUrl
     ) {
       return NextResponse.json(
-        { error: "Missing required dields" },
+        { error: "Missing required fields" },
         { status: 400 }
       );
     }
@@ -57,6 +58,7 @@ export async function POST(request: NextRequest) {
     }
 
     const newVideo = await Video.create(videoData)
+    console.log("VIDEOS: ", newVideo);
     return NextResponse.json(newVideo)
 
   } catch (error) {
