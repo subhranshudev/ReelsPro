@@ -5,7 +5,6 @@ import { IVideo } from "@/models/Video";
 import { useEffect, useState } from "react";
 import { Video } from "@imagekit/next";
 
-
 export default function Home() {
   const [videos, setVideos] = useState<IVideo[]>([]);
 

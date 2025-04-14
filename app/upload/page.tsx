@@ -12,106 +12,101 @@ import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 
 function Page() {
-    const [title, setTitle] = useState("")
-    const [description, setDescription] = useState("")
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
 
-    const router = useRouter()
+  const router = useRouter();
 
-    const [progress, setProgress] = useState(0);
-    const fileInputRef = useRef<HTMLInputElement>(null);
+  const [progress, setProgress] = useState(0);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-    const abortController = new AbortController();
+  const abortController = new AbortController();
 
-    const authenticator = async () => {
-      try {
-        const response = await fetch("/api/imagekit-auth");
+  const authenticator = async () => {
+    try {
+      const response = await fetch("/api/imagekit-auth");
 
-        if (!response.ok) {
-          const errorText = await response.text();
-          throw new Error(
-            `Request failed with status ${response.status}: ${errorText}`
-          );
-        }
-
-        const data = await response.json();
-        const { signature, expire, token, publicKey } = data;
-        return { signature, expire, token, publicKey };
-
-      } catch (error) {
-        console.error("Authentication error:", error);
-        throw new Error("Authentication request failed");
-      }
-    };
-
-    const handleUpload = async () => {
-      const fileInput = fileInputRef.current;
-      if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
-         alert("Please select a file to upload");
-        return;
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(
+          `Request failed with status ${response.status}: ${errorText}`
+        );
       }
 
-      if (!title || !description) {
-        throw new Error("Title and description are required");
-        
+      const data = await response.json();
+      const { signature, expire, token, publicKey } = data;
+      return { signature, expire, token, publicKey };
+    } catch (error) {
+      console.error("Authentication error:", error);
+      throw new Error("Authentication request failed");
+    }
+  };
+
+  const handleUpload = async () => {
+    const fileInput = fileInputRef.current;
+    if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
+      alert("Please select a file to upload");
+      return;
+    }
+
+    if (!title || !description) {
+      throw new Error("Title and description are required");
+    }
+
+    const file = fileInput.files[0];
+
+    let authParams;
+    try {
+      authParams = await authenticator();
+    } catch (authError) {
+      console.error("Failed to authenticate for upload:", authError);
+      return;
+    }
+    const { signature, expire, token, publicKey } = authParams;
+
+    try {
+      //ImageKit Upload
+      const uploadResponse = await upload({
+        expire,
+        token,
+        signature,
+        publicKey,
+        file,
+        fileName: file.name,
+        onProgress: (event) => {
+          setProgress((event.loaded / event.total) * 100);
+        },
+        abortSignal: abortController.signal,
+      });
+
+      //console.log("Upload response:", uploadResponse);
+
+      //Database upload
+      const videoUploadResponse = await apiClient.createVideo({
+        title,
+        description,
+        videoUrl: uploadResponse.url!,
+      });
+
+      if (!videoUploadResponse) {
+        throw new Error("Failed to upload video");
       }
 
-      const file = fileInput.files[0];
-
-      let authParams;
-      try {
-        authParams = await authenticator();
-      } catch (authError) {
-        console.error("Failed to authenticate for upload:", authError);
-        return;
+      router.push("/");
+    } catch (error) {
+      if (error instanceof ImageKitAbortError) {
+        console.error("Upload aborted:", error.reason);
+      } else if (error instanceof ImageKitInvalidRequestError) {
+        console.error("Invalid request:", error.message);
+      } else if (error instanceof ImageKitUploadNetworkError) {
+        console.error("Network error:", error.message);
+      } else if (error instanceof ImageKitServerError) {
+        console.error("Server error:", error.message);
+      } else {
+        console.error("Upload error:", error);
       }
-      const { signature, expire, token, publicKey } = authParams;
-
-      try {
-
-        //ImageKit Upload
-        const uploadResponse = await upload({
-          expire,
-          token,
-          signature,
-          publicKey,
-          file,
-          fileName: file.name,
-          onProgress: (event) => {
-            setProgress((event.loaded / event.total) * 100);
-          },
-          abortSignal: abortController.signal,
-        });
-
-        //console.log("Upload response:", uploadResponse);
-
-        //Database upload
-        const videoUploadResponse = await apiClient.createVideo({
-          title,
-          description,
-          videoUrl: uploadResponse.url!,
-        });
-
-        if (!videoUploadResponse) {
-            throw new Error("Failed to upload video");
-        }
-
-        router.push("/")
-        
-      } catch (error) {
-        if (error instanceof ImageKitAbortError) {
-          console.error("Upload aborted:", error.reason);
-        } else if (error instanceof ImageKitInvalidRequestError) {
-          console.error("Invalid request:", error.message);
-        } else if (error instanceof ImageKitUploadNetworkError) {
-          console.error("Network error:", error.message);
-        } else if (error instanceof ImageKitServerError) {
-          console.error("Server error:", error.message);
-        } else {
-          console.error("Upload error:", error);
-        }
-      }
-    };
-
+    }
+  };
 
   return (
     <div className="w-full h-screen flex justify-center items-center">
