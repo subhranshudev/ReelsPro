@@ -4,7 +4,7 @@ import { apiClient } from "@/lib/api-client";
 import { IVideo } from "@/models/Video";
 import { useEffect, useState } from "react";
 import { Video } from "@imagekit/next";
-import Link from "next/link";
+
 
 export default function Home() {
   const [videos, setVideos] = useState<IVideo[]>([]);
@@ -30,17 +30,13 @@ export default function Home() {
             key={video._id?.toString()}
             className=" bg-black rounded-xl overflow-hidden shadow-lg"
           >
-            {/* Video */}
             <Video
               src={video.videoUrl}
               controls
               // width={1080}
               // height={1920}
               transformation={[{ height: "1920", width: "1080" }]}
-              // className="w-full h-auto "
             />
-
-            {/* Title & description below */}
             <div className="p-4 text-white">
               <h2 className="text-base font-semibold truncate mb-1">
                 {video.title}

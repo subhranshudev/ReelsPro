@@ -1,7 +1,6 @@
 "use client";
 
 import { apiClient } from "@/lib/api-client";
-
 import {
   ImageKitAbortError,
   ImageKitInvalidRequestError,
@@ -9,11 +8,14 @@ import {
   ImageKitUploadNetworkError,
   upload,
 } from "@imagekit/next";
+import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 
 function Page() {
     const [title, setTitle] = useState("")
     const [description, setDescription] = useState("")
+
+    const router = useRouter()
 
     const [progress, setProgress] = useState(0);
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -44,13 +46,13 @@ function Page() {
     const handleUpload = async () => {
       const fileInput = fileInputRef.current;
       if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
-        // alert("Please select a file to upload");
-        <div className="toast">
-          <div className="alert alert-info">
-            <span>Please select a file to upload</span>
-          </div>
-        </div>;
+         alert("Please select a file to upload");
         return;
+      }
+
+      if (!title || !description) {
+        throw new Error("Title and description are required");
+        
       }
 
       const file = fileInput.files[0];
@@ -65,6 +67,8 @@ function Page() {
       const { signature, expire, token, publicKey } = authParams;
 
       try {
+
+        //ImageKit Upload
         const uploadResponse = await upload({
           expire,
           token,
@@ -78,8 +82,9 @@ function Page() {
           abortSignal: abortController.signal,
         });
 
-        console.log("Upload response:", uploadResponse);
+        //console.log("Upload response:", uploadResponse);
 
+        //Database upload
         const videoUploadResponse = await apiClient.createVideo({
           title,
           description,
@@ -88,15 +93,11 @@ function Page() {
 
         if (!videoUploadResponse) {
             throw new Error("Failed to upload video");
-
-            
         }
 
-        console.log("API CALLED");
-        
+        router.push("/")
         
       } catch (error) {
-        // Handle specific error types provided by the ImageKit SDK.
         if (error instanceof ImageKitAbortError) {
           console.error("Upload aborted:", error.reason);
         } else if (error instanceof ImageKitInvalidRequestError) {
@@ -106,11 +107,12 @@ function Page() {
         } else if (error instanceof ImageKitServerError) {
           console.error("Server error:", error.message);
         } else {
-          // Handle any other errors that may occur.
           console.error("Upload error:", error);
         }
       }
     };
+
+
   return (
     <div className="w-full h-screen flex justify-center items-center">
       <div className="card bg-base-100 w-200 shadow-md">
@@ -152,7 +154,9 @@ function Page() {
           </progress>
 
           <div className="card-actions justify-end mt-4">
-            <button className="btn btn-primary" onClick={handleUpload}>Upload</button>
+            <button className="btn btn-primary" onClick={handleUpload}>
+              Upload
+            </button>
           </div>
         </div>
       </div>

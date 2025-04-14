@@ -15,8 +15,13 @@ function Register() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
+    if (!email || !password || !confirmPassword) {
+      throw new Error("All fields are required");
+    }
+
     if (password !== confirmPassword) {
       setError("Your password doesnot match");
+      throw new Error("Your password doesnot match");
     }
 
     try {
@@ -85,7 +90,10 @@ function Register() {
                   required
                 />
               </fieldset>
-              <button className="btn btn-primary w-full mt-4 mb-3" type="submit">
+              <button
+                className="btn btn-primary w-full mt-4 mb-3"
+                type="submit"
+              >
                 Register
               </button>
 

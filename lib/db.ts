@@ -5,7 +5,6 @@ const MONGODB_URI = process.env.MONGODB_URI!;
 if (!MONGODB_URI) {
   throw new Error("Please define mongodb uri in env file");
 }
-//console.log("GLOBAL: ", global);
 
 let cached = global.mongoose;
 
@@ -23,19 +22,18 @@ export async function connectToDatabase() {
       bufferCommands: true,
       maxPoolSize: 10,
     };
-    
+
     cached.promise = mongoose
-    .connect(MONGODB_URI, opts)
-    .then(() => mongoose.connection);
-}
+      .connect(MONGODB_URI, opts)
+      .then(() => mongoose.connection);
+  }
 
-try {
-   cached.conn = await cached.promise 
-} catch (error) {
-    cached.promise = null
-    throw error
-}
+  try {
+    cached.conn = await cached.promise;
+  } catch (error) {
+    cached.promise = null;
+    throw error;
+  }
 
-return cached.conn;
-
+  return cached.conn;
 }

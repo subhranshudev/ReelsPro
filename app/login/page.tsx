@@ -16,6 +16,11 @@ function Login() {
        const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
          e.preventDefault();
 
+         if (!email || !password) {
+          throw new Error("All fields are required");
+          
+         }
+
          const result = await signIn("credentials", {
             redirect: false,
             email: email,
@@ -24,23 +29,10 @@ function Login() {
 
          if (result?.error) {
             if (result.error === "CredentialsSignin") {
-                <div className="toast toast-end">
-                  <div className="alert alert-info">
-                    <span>Login Failed</span>
-                  </div>
-                  <div className="alert alert-error">
-                    <span>Incorrect Username or password</span>
-                  </div>
-                </div>
+                throw new Error("Login Failed");
+                
             } else {
-                <div className="toast toast-end">
-                  <div className="alert alert-info">
-                    <span>Login Failed</span>
-                  </div>
-                  <div className="alert alert-error">
-                    <span>Incorrect Username or password</span>
-                  </div>
-                </div>
+                throw new Error("Login Failed");
             }
          }
 
