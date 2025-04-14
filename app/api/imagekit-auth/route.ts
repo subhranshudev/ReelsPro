@@ -35,6 +35,7 @@ export async function GET() {
       expire,
       signature,
       publicKey: process.env.IMAGEKIT_PUBLIC_KEY,
+      urlendpoint: process.env.IMAGEKIT_URL_ENDPOINT,
     });
   } catch (error) {
     return NextResponse.json({ error: "ImageKit Auth Error" }, { status: 500 });

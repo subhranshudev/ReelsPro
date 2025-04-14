@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ImageKitProvider } from "@imagekit/next";
-import Header from "./components/Header";
 import { SessionProvider } from "next-auth/react";
+import Navbar from "./components/Navbar";
+import AuthProvider from "@/context/AuthProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -30,12 +31,12 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-       
+        <AuthProvider>
           <ImageKitProvider urlEndpoint="https://ik.imagekit.io/jl3fx9fzj">
-            {/* <Header /> */}
+            <Navbar />
             {children}
           </ImageKitProvider>
-        
+        </AuthProvider>
       </body>
     </html>
   );

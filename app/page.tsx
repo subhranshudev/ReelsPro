@@ -24,52 +24,32 @@ export default function Home() {
 
   return (
     <>
-      <h1>chaicode</h1>
-      {videos.map((video) => (
-        // <div
-        //   className="card bg-base-100 w-96 shadow-sm m-2 border-amber-300 rounded-lg"
-        //   style={{ aspectRatio: "9/16" }}
-        //   key={video._id?.toString()}
-        // >
-        //   <div className="overflow-hidden rounded-xl">
-        //     <Video
-        //       src={video.videoUrl}
-        //       controls
-        //       width={500}
-        //       height={500}
-        //       // transformation={[{ width: 1080, height: 1920 }]}
-        //       transformation={[{ height: "1920", width: "1080" }]}
-        //       className="w-full h-full object-cover overflow-hidden"
-        //     />
-        //   </div>
-        //   <div className="card-body">
-        //     <h2 className="card-title">{video.title}</h2>
-        //     <p>{video.description}</p>
-        //     {/* <div className="card-actions justify-end">
-        //       <button className="btn btn-primary">Buy Now</button>
-        //     </div> */}
-        //   </div>
-        // </div>
-
-        // *************************
-
-        <div className="card w-96 bg-base-100 card-sm shadow-sm overflow-hidden rounded-xl" key={video._id?.toString()}>
-          <div className="card-body">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4">
+        {videos.map((video) => (
+          <div
+            key={video._id?.toString()}
+            className=" bg-black rounded-xl overflow-hidden shadow-lg"
+          >
+            {/* Video */}
             <Video
               src={video.videoUrl}
               controls
-              width={500}
-              height={500}
-
+              // width={1080}
+              // height={1920}
               transformation={[{ height: "1920", width: "1080" }]}
-              className="w-full h-full object-cover overflow-hidden"
+              // className="w-full h-auto "
             />
-            <h2 className="card-title">{video.title}</h2>
-            <p>{video.description} </p>
-            
+
+            {/* Title & description below */}
+            <div className="p-4 text-white">
+              <h2 className="text-base font-semibold truncate mb-1">
+                {video.title}
+              </h2>
+              <p className="text-sm text-gray-300">{video.description}</p>
+            </div>
           </div>
-        </div>
-      ))}
+        ))}
+      </div>
     </>
   );
 }
